@@ -42,15 +42,4 @@ services:
       - '--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json'
       - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http'
       - '--providers.docker=true'
-      - '--entrypoints.https.tls.certresolver=letsencrypt'
-      - '--entrypoints.https.tls.domains[0].main=seolutional.com'
-      - '--entrypoints.https.tls.domains[0].sans=*.seolutional.com'
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.traefik.entrypoints=http
-      - traefik.http.routers.traefik.service=api@internal
-      - traefik.http.routers.traefik.tls.certresolver=letsencrypt
-      - traefik.http.routers.traefik.rule=Host(`coolify.seolutional.com`)
-      - traefik.http.services.traefik.loadbalancer.server.port=8080
-      - coolify.managed=true
-      - coolify.proxy=true
+
