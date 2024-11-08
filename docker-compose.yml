@@ -30,11 +30,6 @@ services:
       - '--api.insecure=false'
       - '--entrypoints.http.address=:80'
       - '--entrypoints.https.address=:443'
-      - '--entrypoints.http.http.encodequerysemicolons=true'
-      - '--entryPoints.http.http2.maxConcurrentStreams=50'
-      - '--entrypoints.https.http.encodequerysemicolons=true'
-      - '--entryPoints.https.http2.maxConcurrentStreams=50'
-      - '--entrypoints.https.http3'
       - '--providers.docker.exposedbydefault=false'
       - '--providers.file.directory=/traefik/dynamic/'
       - '--providers.file.watch=true'
@@ -42,4 +37,35 @@ services:
       - '--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json'
       - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http'
       - '--providers.docker=true'
-
+      - '--entrypoints.https.tls.certresolver=letsencrypt'
+      - '--entrypoints.https.tls.domains[0].main=seolutional.com'
+      - '--entrypoints.https.tls.domains[0].sans=*.seolutional.com'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.entrypoints=https  # Change to HTTPS to ensure dashboard is secured
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls=true  # Enable TLS for Traefik router
+      - traefik.http.routers.traefik.tls.certresolver=letsencrypt  # Ensure Let's Encrypt is used for HTTPS
+      - traefik.http.routers.traefik.rule=Host(`coolify.seolutional.com`)
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      - coolify.managed=true
+      - coolify.proxy=true
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi-backend
+    ports:
+      - '8005:8005'
+    env_file:
+      - sample.env
+    environment:
+      NODE_ENV: production
+      OPENAI_API_KEY: '${OPENAI_API_KEY}'
+    volumes:
+      - ./evaluation_plots:/app/evaluation_plots
+      - ./trace.pdf:/app/trace.pdf
+      - ./votes.json:/app/votes.json
+    restart: unless-stopped
+    networks:
+      - coolify
