@@ -8,6 +8,9 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install FFmpeg for audio processing
+RUN apt-get update && apt-get install -y ffmpeg
+
 # Copy the rest of the application code to the container
 COPY . .
 
@@ -15,7 +18,7 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 
 # Expose the port that FastAPI will run on
-EXPOSE 8000
+EXPOSE 8005
 
 # Run the FastAPI application
-CMD ["uvicorn", "fast_api_app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "fast_api_app:app", "--host", "0.0.0.0", "--port", "8005"]
